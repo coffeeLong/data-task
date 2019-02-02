@@ -3,7 +3,7 @@ package com.longlong.exporter.config;
 import java.lang.reflect.Method;
 
 /**
- *
+ *  导出任务获取数据配置
  * @author liaolonglong
  */
 public class ExportService {

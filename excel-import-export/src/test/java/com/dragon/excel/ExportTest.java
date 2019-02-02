@@ -22,6 +22,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ExportTest {
@@ -37,7 +40,6 @@ public class ExportTest {
     private static TestParam param;
 
 
-
     private static ExportTask<AbstractExportExcel> exportTask;
 
     @BeforeClass
@@ -49,9 +51,13 @@ public class ExportTest {
         param.setCount(4300);
         /** ＝＝＝＝＝＝＝＝＝＝＝＝设置全局属性或任务 开始＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝ */
         ExportTaskPool<AbstractExportExcel> forkJoinExportTaskPool = new ForkJoinExportTaskPool<>();
-        exportTask = new ExportTask<>(forkJoinExportTaskPool);
 
-        exportTask.getDefaultConfig()
+        //默认配置属性
+        ExportTaskConfig<AbstractExportExcel> defaultConfig = ExportBuilder.buildConfig();
+
+        exportTask = ExportBuilder.buildTask(defaultConfig, forkJoinExportTaskPool);
+
+        defaultConfig
                 .setDataTask((export, pageData) -> {
                     export.setDataList((List) pageData);
                 })
@@ -96,7 +102,7 @@ public class ExportTest {
 
 
     /**
-     * <p>
+     * 使用注解导出报表
      *
      * @throws ExportException
      */
@@ -105,25 +111,28 @@ public class ExportTest {
         ExportTaskConfig<AbstractExportExcel> config = ExportBuilder.buildConfig();
         config.setLogErrorMessage("测试导出报表导出异常")
                 .setErrorMessage("导出报表失败")
-                .setAfterDataTask(exportExcel -> {
-                    int rowNumber = exportExcel.getRownum();
-                    exportExcel.addCell(++rowNumber, 2, new String[]{"生成人", "超级管理员"}, 2);
-                    exportExcel.addCell(++rowNumber, 2, new String[]{"生成日期：", new SimpleDateFormat("yyyy-MM-dd").format(new Date())}, 2);
-                })
-        .setMaxThread(2);
+                .setAfterDataTask(export -> {
+                    int rowNumber = export.getRownum();
+                    export.addCell(++rowNumber, 2, new String[]{"生成人", "超级管理员"}, 2);
+                    export.addCell(++rowNumber, 2, new String[]{"生成日期：", new SimpleDateFormat("yyyy-MM-dd").format(new Date())}, 2);
+                });
         export(config);
     }
 
+    /**
+     * 使用注解导出报表
+     *
+     * @throws ExportException
+     */
     @Test
     public void exportAnno2() throws ExportException {
         ExportTaskConfig<AbstractExportExcel> config = ExportBuilder.buildConfig();
 
         config.setLogErrorMessage("测试导出报表导出异常")
-                .setAfterDataTask(exporter -> {
-                    AbstractExportExcel exportExcel = (AbstractExportExcel) exporter;
-                    int rowNumber = exportExcel.getRownum();
-                    exportExcel.addCell(++rowNumber, 2, new String[]{"生成人", "超级管理员"}, 2);
-                    exportExcel.addCell(++rowNumber, 2, new String[]{"生成日期：", new SimpleDateFormat("yyyy-MM-dd").format(new Date())}, 2);
+                .setAfterDataTask(export -> {
+                    int rowNumber = export.getRownum();
+                    export.addCell(++rowNumber, 2, new String[]{"生成人", "超级管理员"}, 2);
+                    export.addCell(++rowNumber, 2, new String[]{"生成日期：", new SimpleDateFormat("yyyy-MM-dd").format(new Date())}, 2);
                 }).setPageSize(200).setCount(param.getCount()).setParamsTask((params, pageNo, pageSize, count) -> {
             params[0] = pageNo;
             params[1] = pageSize;
@@ -136,9 +145,14 @@ public class ExportTest {
 
     }
 
+    /**
+     * 通过配置属性以map方式导出
+     *
+     * @throws ExportException
+     */
     @SuppressWarnings("unchecked")
     @Test
-    public void exportMapAnno1() throws ExportException {
+    public void exportFieldMap() throws ExportException {
         AtomicInteger i = new AtomicInteger(1);
         // 设置默认获取总记录数任务
         ExportTaskConfig<AbstractExportExcel> config = ExportBuilder.buildConfig();
@@ -156,6 +170,12 @@ public class ExportTest {
                 .addExcelField("countCanceledRequests", "撤回团队"));
     }
 
+
+    /**
+     * 以map方式导出多个sheet
+     *
+     * @throws ExportException
+     */
     @SuppressWarnings("unchecked")
     @Test
     public void exportMapAnno2() throws ExportException {
@@ -172,6 +192,11 @@ public class ExportTest {
 
     }
 
+    /**
+     * 添加属性导出Excel
+     *
+     * @throws ExportException
+     */
     @Test
     public void exportField() throws ExportException {
 
@@ -187,6 +212,11 @@ public class ExportTest {
 
     }
 
+    /**
+     * 大数据导出Excel
+     *
+     * @throws ExportException
+     */
     @Test
     public void exportBigData() throws ExportException {
         // 设置默认获取总记录数任务
@@ -211,7 +241,44 @@ public class ExportTest {
                 ExportExcelBuilder.build("测试导出", TestEntity.class),
                 ExportBuilder.buildService(service, "findList", param.getPageNo(), param.getPageSize(), param.getCount()));
 
+    }
 
+
+    /**
+     * 多线程环境测试导出
+     *
+     * @throws InterruptedException
+     */
+    @Test
+    public void exportMultiThread() throws InterruptedException {
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
+
+        CountDownLatch countDownLatch = new CountDownLatch(5);
+
+        executorService.execute(() -> {
+            exportAnno1();
+            countDownLatch.countDown();
+        });
+        executorService.execute(() -> {
+            exportAnno2();
+            countDownLatch.countDown();
+        });
+        executorService.execute(() -> {
+            exportFieldMap();
+            countDownLatch.countDown();
+        });
+        executorService.execute(() -> {
+            exportMapAnno2();
+            countDownLatch.countDown();
+        });
+        executorService.execute(() -> {
+            exportField();
+            countDownLatch.countDown();
+        });
+
+        countDownLatch.await();
+
+        executorService.shutdown();
     }
 
 }

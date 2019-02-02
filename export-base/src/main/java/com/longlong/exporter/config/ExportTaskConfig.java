@@ -42,11 +42,6 @@ public class ExportTaskConfig<T> {
     private Integer taskSize;
 
     /**
-     * 允许开启最大导出线程数
-     */
-    private Integer maxThread;
-
-    /**
      * 一页读取的最大记录数
      */
     private Integer pageSize;
@@ -75,11 +70,6 @@ public class ExportTaskConfig<T> {
 
     public ExportTaskConfig<T> setTaskSize(Integer taskSize) {
         this.taskSize = taskSize;
-        return this;
-    }
-
-    public ExportTaskConfig<T> setMaxThread(Integer maxThread) {
-        this.maxThread = maxThread;
         return this;
     }
 
@@ -169,10 +159,6 @@ public class ExportTaskConfig<T> {
 
     public Integer getTaskSize() {
         return taskSize;
-    }
-
-    public Integer getMaxThread() {
-        return maxThread;
     }
 
     public Integer getPageSize() {

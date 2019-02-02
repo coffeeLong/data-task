@@ -17,6 +17,10 @@ import java.io.InputStream;
 import java.util.List;
 
 
+/**
+ * Excel导入公共类
+ * @author liaolonglong
+ */
 public abstract class AbstractImportExcel {
 
 	protected Logger log = LoggerFactory.getLogger(getClass());

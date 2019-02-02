@@ -1,8 +1,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.dragon</groupId>
-	<artifactId>export</artifactId>
+	<groupId>com.longlong</groupId>
+	<artifactId>exporter</artifactId>
 	<packaging>pom</packaging>
 	<version>1.0.0</version>
 	<modules>
@@ -11,7 +11,6 @@
 		<module>export-task-jdk</module>
 	</modules>
 
-	<name>export</name>
 	<description>报表导出功能构设计，支持大数据导出</description>
 
 	<properties>
