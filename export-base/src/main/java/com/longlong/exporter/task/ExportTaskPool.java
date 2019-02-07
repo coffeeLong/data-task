@@ -1,10 +1,10 @@
 package com.longlong.exporter.task;
 
+import com.longlong.exporter.SingleExportTask;
 import com.longlong.exporter.config.ExportService;
 import com.longlong.exporter.config.ExportTaskConfig;
 
 import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * 管理导出任务线程池
@@ -21,12 +21,19 @@ public interface ExportTaskPool<T> {
      * @param exportService 导出任务获取数据参数
      * @param config        导出任务当前属性配置
      * @param exceptions    存储异常信息
+     * @throws Exception    抛出异常
      */
-    void invoke(int start, int end, T export, ExportService exportService, ExportTaskConfig<T> config,ConcurrentMap<Integer, Object> cache, Set<Throwable> exceptions);
+    void invoke(int start, int end, T export, ExportService exportService, ExportTaskConfig<T> config, Set<Throwable> exceptions) throws Exception;
 
     /**
      * 导出任务线程池停止时调用
      */
     void shutdown();
+
+    /**
+     * 由ExportTask创建时把本身传递到ExportTaskPool
+     * @param exportTask
+     */
+    void exportTask(SingleExportTask<T> exportTask);
 
 }

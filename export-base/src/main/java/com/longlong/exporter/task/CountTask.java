@@ -7,5 +7,5 @@ package com.longlong.exporter.task;
  * @author liaolonglong
  */
 public interface CountTask<T> {
-	int exec(Object[] params);
+	int run(Object[] params);
 }

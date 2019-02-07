@@ -3,6 +3,7 @@ package com.longlong.exporter;
 import com.longlong.exporter.config.ExportService;
 import com.longlong.exporter.config.ExportTaskConfig;
 import com.longlong.exporter.exception.ExportException;
+import com.longlong.exporter.task.ExportTask;
 import com.longlong.exporter.task.ExportTaskPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,12 +15,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.LockSupport;
 
 /**
- * 导出任务，支持大数据报表导出
+ * 导出任务架构设计，处理大数据报表导出
+ * 使用说明：
+ * 1.创建对象时指定处理任务的线程池和处理任务类型
+ * 2.导出时调用export方法即可
+ * 3.当项目停止时调用shutdown
  *
  * @author liaolonglong
  */
-public class ExportTask<T> {
-    private Logger logger = LoggerFactory.getLogger(ExportTask.class);
+public class SingleExportTask<T> implements ExportTask<T> {
+    private Logger logger = LoggerFactory.getLogger(SingleExportTask.class);
 
     /**
      * 全局默认导出报表失败显示信息
@@ -71,9 +76,11 @@ public class ExportTask<T> {
     private final ExportTaskPool<T> exportTaskPool;
 
 
-    ExportTask(ExportTaskConfig<T> defaultConfig, ExportTaskPool<T> exportTaskPool) {
+    SingleExportTask(ExportTaskConfig<T> defaultConfig, ExportTaskPool<T> exportTaskPool) {
         this.defaultConfig = defaultConfig;
         this.exportTaskPool = exportTaskPool;
+
+        this.exportTaskPool.exportTask(this);
 
         //加载默认配置属性
         if (Objects.isNull(defaultConfig.getLogErrorMessage())) {
@@ -99,6 +106,7 @@ public class ExportTask<T> {
      * @param config
      * @throws ExportException
      */
+    @Override
     public void export(T export, ExportService exportService, ExportTaskConfig<T> config) throws ExportException {
 
         copyDefaultConfigAndRequireCheck(exportService, config);
@@ -112,11 +120,11 @@ public class ExportTask<T> {
                 if (config.getCountTask() == null) {
                     throw new ExportException("count属性必须设置");
                 }
-                config.setCount(config.getCountTask().exec(exportService.getParams()));
+                config.setCount(config.getCountTask().run(exportService.getParams()));
             }
 
             if (Objects.nonNull(config.getBeforeDataTask())) {
-                config.getBeforeDataTask().exec(export);
+                config.getBeforeDataTask().run(export);
             }
 
             // 创建线程池对象
@@ -146,12 +154,12 @@ public class ExportTask<T> {
             }
         } else {
             if (Objects.nonNull(config.getBeforeDataTask())) {
-                config.getBeforeDataTask().exec(export);
+                config.getBeforeDataTask().run(export);
             }
-            config.getDataTask().exec(export, null);
+            config.getDataTask().run(export, null);
         }
         if (Objects.nonNull(config.getAfterDataTask())) {
-            config.getAfterDataTask().exec(export);
+            config.getAfterDataTask().run(export);
         }
         // 调用Excel导出写入方法
         config.getWriteTask().run(export);
@@ -177,7 +185,7 @@ public class ExportTask<T> {
                     field.set(config, field.get(defaultConfig));
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("复制默认属性异常field={}", field, e);
             }
         }
 
@@ -206,7 +214,7 @@ public class ExportTask<T> {
      * @param exceptions
      * @throws InterruptedException
      */
-    private synchronized void doExport(T export, ExportService exportService, ExportTaskConfig<T> config, int taskTotal, Set<Throwable> exceptions) throws InterruptedException {
+    private synchronized void doExport(T export, ExportService exportService, ExportTaskConfig<T> config, int taskTotal, Set<Throwable> exceptions) throws Exception {
         Thread masterThread = Thread.currentThread();
 
         int taskSize = config.getTaskSize();
@@ -214,7 +222,7 @@ public class ExportTask<T> {
         //同步执行第一个任务，并把请求完数据临时缓存
         AtomicInteger start = new AtomicInteger(1), end = new AtomicInteger(taskSize);
 
-        exportTaskPool.invoke(start.get(), end.get() > taskTotal ? taskTotal : end.get(), export, exportService, config, CACHE, exceptions);
+        exportTaskPool.invoke(start.get(), end.get() > taskTotal ? taskTotal : end.get(), export, exportService, config, exceptions);
 
         retainAllCacheValues();
 
@@ -223,10 +231,13 @@ public class ExportTask<T> {
 
             asyncExecutorService.execute(() -> {
 
-                exportTaskPool.invoke(start.get(), end.addAndGet(taskSize) > taskTotal ? taskTotal : end.get(), export, exportService, config, CACHE, exceptions);
-
-                LockSupport.unpark(masterThread);
-
+                try {
+                    exportTaskPool.invoke(start.get(), end.addAndGet(taskSize) > taskTotal ? taskTotal : end.get(), export, exportService, config, exceptions);
+                } catch (Exception e) {
+                    exceptions.add(e);
+                } finally {
+                    LockSupport.unpark(masterThread);
+                }
             });
 
             handleDataTask(export, config);
@@ -259,13 +270,67 @@ public class ExportTask<T> {
      * @param config
      */
     private void handleDataTask(T export, ExportTaskConfig config) {
-        CACHE_SORTED_VALUES.forEach(list -> config.getDataTask().exec(export, list));
+        CACHE_SORTED_VALUES.forEach(list -> config.getDataTask().run(export, list));
         CACHE_SORTED_VALUES.clear();
     }
 
+    @Override
     public void shutdown() {
+
         exportTaskPool.shutdown();
         asyncExecutorService.shutdown();
     }
 
+    /**
+     * 调用导出任务获取数据接口加载数据，并把数据加入缓存
+     */
+    public class LoadDataCallable implements Callable<Object> {
+        private int pageNo;
+        private ExportService exportService;
+        private ExportTaskConfig<T> config;
+        private Set<Throwable> exceptions;
+
+        public LoadDataCallable(int pageNo, ExportService exportService, ExportTaskConfig<T> config, Set<Throwable> exceptions) {
+            this.pageNo = pageNo;
+            this.exportService = exportService;
+            this.config = config;
+            this.exceptions = exceptions;
+        }
+
+        @Override
+        public Object call() throws Exception {
+            Object res = null;
+            try {
+                Object[] params = exportService.getParams();
+
+                Object[] newParams = new Object[params.length];
+                for (int i = 0; i < newParams.length; i++) {
+                    try {
+                        newParams[i] = params[i].getClass().newInstance();
+                        for (Field field : params[i].getClass().getDeclaredFields()) {
+                            try {
+                                field.setAccessible(true);
+                                field.set(newParams[i], field.get(params[i]));
+                            } catch (Exception e) {
+                                // 常量属性不允许赋值
+                            }
+                        }
+                    } catch (InstantiationException e) {
+                        // 基本数据类型不允许使用newInstance创建对象
+                        newParams[i] = params[i];
+                    }
+                }
+                if (Objects.nonNull(config.getParamsTask())) {
+                    config.getParamsTask().run(newParams, pageNo, config.getPageSize(), config.getCount());
+
+                }
+                CACHE.put(pageNo, res = exportService.getExecuteMethod().invoke(exportService.getExecuteObj(), newParams));
+            } catch (Exception e) {
+                exceptions.add(e);
+            }
+            return res;
+        }
+
+
+    }
 }

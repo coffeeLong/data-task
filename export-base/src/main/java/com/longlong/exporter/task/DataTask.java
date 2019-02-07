@@ -1,5 +1,9 @@
 package com.longlong.exporter.task;
 
+/**
+ * 添加每批数据到数据处理对象
+ * @author liaolonglong
+ */
 public interface DataTask<T> {
 	/**
 	 * 
@@ -8,5 +12,5 @@ public interface DataTask<T> {
 	 * @param pageData
 	 *            获取数据任务返回结果
 	 */
-	void exec(T export, Object pageData);
+	void run(T export, Object pageData);
 }

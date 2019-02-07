@@ -592,11 +592,12 @@ public abstract class AbstractExportExcel<THIS extends AbstractExportExcel<THIS,
         if (null != dataKey) {
             this.dataKey = dataKey;
         }
+        Row row;
         for (int i = 0, len = list.size(); i < len; i++) {
             if (rownum == getExcelVersion().getMaxRows()) {
                 sheet = createSheet(sheetName + "(" + ++countSheetNum + ")", headerList);
             }
-            Row row = useTemplate ? sheet.getRow(rownum++) : sheet.createRow(rownum++);
+            row = useTemplate ? sheet.getRow(rownum++) : sheet.createRow(rownum++);
             setData(row, list.get(i));
         }
         return getThis();

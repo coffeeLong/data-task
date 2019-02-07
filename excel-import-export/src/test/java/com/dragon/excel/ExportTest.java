@@ -7,11 +7,11 @@ import com.dragon.excel.service.TestService;
 import com.longlong.excel.ExportExcelBuilder;
 import com.longlong.excel.exporter.AbstractExportExcel;
 import com.longlong.exporter.ExportBuilder;
-import com.longlong.exporter.ExportTask;
 import com.longlong.exporter.ForkJoinExportTaskPool;
 import com.longlong.exporter.config.ExportService;
 import com.longlong.exporter.config.ExportTaskConfig;
 import com.longlong.exporter.exception.ExportException;
+import com.longlong.exporter.task.ExportTask;
 import com.longlong.exporter.task.ExportTaskPool;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -50,6 +50,8 @@ public class ExportTest {
         param.setPageSize(50);
         param.setCount(4300);
         /** ＝＝＝＝＝＝＝＝＝＝＝＝设置全局属性或任务 开始＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝ */
+//        ExportTaskPool<AbstractExportExcel> forkJoinExportTaskPool = new ThreadPoolExportTaskPool<>();
+//        ExportTaskPool<AbstractExportExcel> forkJoinExportTaskPool = new MasterWorkerExportTaskPool<>();
         ExportTaskPool<AbstractExportExcel> forkJoinExportTaskPool = new ForkJoinExportTaskPool<>();
 
         //默认配置属性
@@ -220,7 +222,7 @@ public class ExportTest {
     @Test
     public void exportBigData() throws ExportException {
         // 设置默认获取总记录数任务
-        int count = 80000;
+        int count = 50000;
         ExportTaskConfig<AbstractExportExcel> config = ExportBuilder.buildConfig();
 
         config.setLogErrorMessage("测试导出报表导出异常")

@@ -7,8 +7,8 @@
 
 # export-task-jdk
 
-导出报表任务jdk实现
+导出报表任务jdk实现，提供了threadpool和forkjoin两种线程池实现方式
 
 # excel-import-export
 
-excel导入导出实现，单元测试做了完整测试。如需集成spring boot可参考ExportTest.init()方法创建bean
+excel导入导出实现，单元测试做了完整测试。如需集成spring boot可参考ExportTest.init()方法创建ExportTask对象

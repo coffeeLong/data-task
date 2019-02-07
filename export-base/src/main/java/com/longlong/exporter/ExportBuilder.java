@@ -2,6 +2,7 @@ package com.longlong.exporter;
 
 import com.longlong.exporter.config.ExportService;
 import com.longlong.exporter.config.ExportTaskConfig;
+import com.longlong.exporter.task.ExportTask;
 import com.longlong.exporter.task.ExportTaskPool;
 
 /**
@@ -42,7 +43,7 @@ public class ExportBuilder {
      * @return 导出任务
      */
     public static <T> ExportTask<T> buildTask(ExportTaskConfig<T> defaultConfig, ExportTaskPool<T> exportTaskPool) {
-        return new ExportTask<>(defaultConfig, exportTaskPool);
+        return new SingleExportTask<>(defaultConfig, exportTaskPool);
     }
 
     /**

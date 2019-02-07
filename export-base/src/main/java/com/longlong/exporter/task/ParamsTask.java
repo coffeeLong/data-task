@@ -11,5 +11,5 @@ public interface ParamsTask<T> {
      *
      * @param params
      */
-    void exec(Object[] params, int pageNo, int pageSize, int count);
+    void run(Object[] params, int pageNo, int pageSize, int count);
 }
