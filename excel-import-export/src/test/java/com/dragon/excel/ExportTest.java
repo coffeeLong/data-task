@@ -11,7 +11,6 @@ import com.longlong.exporter.ForkJoinExportTaskPool;
 import com.longlong.exporter.config.ExportService;
 import com.longlong.exporter.config.ExportTaskConfig;
 import com.longlong.exporter.exception.ExportException;
-import com.longlong.exporter.task.ExportTask;
 import com.longlong.exporter.task.ExportTaskPool;
 import org.junit.BeforeClass;
 import org.junit.Test;

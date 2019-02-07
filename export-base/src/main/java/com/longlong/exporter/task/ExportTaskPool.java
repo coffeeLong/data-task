@@ -1,6 +1,6 @@
 package com.longlong.exporter.task;
 
-import com.longlong.exporter.SingleExportTask;
+import com.longlong.exporter.ExportTask;
 import com.longlong.exporter.config.ExportService;
 import com.longlong.exporter.config.ExportTaskConfig;
 
@@ -34,6 +34,6 @@ public interface ExportTaskPool<T> {
      * 由ExportTask创建时把本身传递到ExportTaskPool
      * @param exportTask
      */
-    void exportTask(SingleExportTask<T> exportTask);
+    void exportTask(ExportTask<T> exportTask);
 
 }

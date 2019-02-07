@@ -3,7 +3,6 @@ package com.longlong.exporter;
 import com.longlong.exporter.config.ExportService;
 import com.longlong.exporter.config.ExportTaskConfig;
 import com.longlong.exporter.exception.ExportException;
-import com.longlong.exporter.task.ExportTask;
 import com.longlong.exporter.task.ExportTaskPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +22,8 @@ import java.util.concurrent.locks.LockSupport;
  *
  * @author liaolonglong
  */
-public class SingleExportTask<T> implements ExportTask<T> {
-    private Logger logger = LoggerFactory.getLogger(SingleExportTask.class);
+public class ExportTask<T> {
+    private Logger logger = LoggerFactory.getLogger(ExportTask.class);
 
     /**
      * 全局默认导出报表失败显示信息
@@ -76,7 +75,7 @@ public class SingleExportTask<T> implements ExportTask<T> {
     private final ExportTaskPool<T> exportTaskPool;
 
 
-    SingleExportTask(ExportTaskConfig<T> defaultConfig, ExportTaskPool<T> exportTaskPool) {
+    ExportTask(ExportTaskConfig<T> defaultConfig, ExportTaskPool<T> exportTaskPool) {
         this.defaultConfig = defaultConfig;
         this.exportTaskPool = exportTaskPool;
 
@@ -106,7 +105,6 @@ public class SingleExportTask<T> implements ExportTask<T> {
      * @param config
      * @throws ExportException
      */
-    @Override
     public void export(T export, ExportService exportService, ExportTaskConfig<T> config) throws ExportException {
 
         copyDefaultConfigAndRequireCheck(exportService, config);
@@ -274,7 +272,6 @@ public class SingleExportTask<T> implements ExportTask<T> {
         CACHE_SORTED_VALUES.clear();
     }
 
-    @Override
     public void shutdown() {
 
         exportTaskPool.shutdown();

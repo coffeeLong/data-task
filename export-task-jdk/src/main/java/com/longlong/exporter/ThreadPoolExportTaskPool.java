@@ -2,7 +2,7 @@ package com.longlong.exporter;
 
 import com.longlong.exporter.config.ExportService;
 import com.longlong.exporter.config.ExportTaskConfig;
-import com.longlong.exporter.task.ExportTaskPool;
+import com.longlong.exporter.task.AbstractExportTaskPool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,11 +16,9 @@ import java.util.concurrent.TimeUnit;
  *
  * @author liaolonglong
  */
-public class ThreadPoolExportTaskPool<T> implements ExportTaskPool<T> {
+public class ThreadPoolExportTaskPool<T> extends AbstractExportTaskPool<T> {
 
     private final ThreadPoolExecutor threadPoolExecutor;
-
-    private SingleExportTask<T> exportTask;
 
 
     public ThreadPoolExportTaskPool() {
@@ -35,10 +33,10 @@ public class ThreadPoolExportTaskPool<T> implements ExportTaskPool<T> {
 
     @Override
     public void invoke(int start, int end, T export, ExportService exportService, ExportTaskConfig<T> config, Set<Throwable> exceptions) throws Exception {
-        List<SingleExportTask<T>.LoadDataCallable> tasks = new ArrayList<>();
+        List<ExportTask<T>.LoadDataCallable> tasks = new ArrayList<>();
 
         for (int i = start; i <= end; i++) {
-            tasks.add(exportTask.new LoadDataCallable(i, exportService, config, exceptions));
+            tasks.add(getExportTask().new LoadDataCallable(i, exportService, config, exceptions));
         }
 
         threadPoolExecutor.invokeAll(tasks);
@@ -48,11 +46,6 @@ public class ThreadPoolExportTaskPool<T> implements ExportTaskPool<T> {
     @Override
     public void shutdown() {
         threadPoolExecutor.shutdown();
-    }
-
-    @Override
-    public void exportTask(SingleExportTask<T> exportTask) {
-        this.exportTask = exportTask;
     }
 
 

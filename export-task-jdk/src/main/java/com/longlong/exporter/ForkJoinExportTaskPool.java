@@ -2,7 +2,7 @@ package com.longlong.exporter;
 
 import com.longlong.exporter.config.ExportService;
 import com.longlong.exporter.config.ExportTaskConfig;
-import com.longlong.exporter.task.ExportTaskPool;
+import com.longlong.exporter.task.AbstractExportTaskPool;
 
 import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
@@ -13,11 +13,10 @@ import java.util.concurrent.RecursiveAction;
  *
  * @author liaolonglong
  */
-public class ForkJoinExportTaskPool<T> implements ExportTaskPool<T> {
+public class ForkJoinExportTaskPool<T> extends AbstractExportTaskPool<T> {
 
     private final ForkJoinPool forkJoinPool;
 
-    private SingleExportTask<T> exportTask;
 
     public ForkJoinExportTaskPool() {
         this(Runtime.getRuntime().availableProcessors() * 2);
@@ -36,11 +35,6 @@ public class ForkJoinExportTaskPool<T> implements ExportTaskPool<T> {
     @Override
     public void shutdown() {
         forkJoinPool.shutdown();
-    }
-
-    @Override
-    public void exportTask(SingleExportTask<T> exportTask) {
-        this.exportTask = exportTask;
     }
 
     private class ForkJoinTask extends RecursiveAction {
@@ -62,7 +56,7 @@ public class ForkJoinExportTaskPool<T> implements ExportTaskPool<T> {
         protected void compute() {
             if (end == start) {
                 try {
-                    exportTask.new LoadDataCallable(end, exportService, config, exceptions).call();
+                    getExportTask().new LoadDataCallable(end, exportService, config, exceptions).call();
                 } catch (Exception e) {
                     exceptions.add(e);
                 }
