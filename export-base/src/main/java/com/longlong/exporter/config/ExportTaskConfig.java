@@ -10,31 +10,26 @@ import com.longlong.exporter.task.*;
 public class ExportTaskConfig<T> {
 
     /**
-     * 自定义参数任务
-     */
-    private ParamsTask<T> paramsTask;
-
-    /**
      * 全局默认获取总记录数任务
      */
-    private CountTask<T> countTask;
+    private TotalTask<T> countTask;
 
     /**
      * 在开始导出数据之前执行的任务
      */
-    private BeforeDataTask<T> beforeDataTask;
+    private DataBeforeHandleTask<T> beforeDataTask;
     /**
      * 自定义Excel设置数据任务,默认返回list数据并调用ExportExcel.setDataList(list)
      */
-    private DataTask<T> dataTask;
+    private DataHandleTask<T> dataTask;
     /**
      * 在结束导出数据后执行的任务
      */
-    private AfterDataTask<T> afterDataTask;
+    private DataAfterHandleTask<T> afterDataTask;
     /**
      * 自定义Excel写入任务，默认调用{@link}ExportExcel的write()方法
      */
-    private WriteTask<T> writeTask;
+    private DataHandleCompletedTask<T> writeTask;
 
     /**
      * 一次任务执行的任务数
@@ -83,32 +78,27 @@ public class ExportTaskConfig<T> {
         return this;
     }
 
-    public ExportTaskConfig<T> setParamsTask(ParamsTask<T> paramsTask) {
-        this.paramsTask = paramsTask;
-        return this;
-    }
-
-    public ExportTaskConfig<T> setCountTask(CountTask<T> countTask) {
+    public ExportTaskConfig<T> setCountTask(TotalTask<T> countTask) {
         this.countTask = countTask;
         return this;
     }
 
-    public ExportTaskConfig<T> setBeforeDataTask(BeforeDataTask<T> beforeDataTask) {
+    public ExportTaskConfig<T> setBeforeDataTask(DataBeforeHandleTask<T> beforeDataTask) {
         this.beforeDataTask = beforeDataTask;
         return this;
     }
 
-    public ExportTaskConfig<T> setDataTask(DataTask<T> dataTask) {
+    public ExportTaskConfig<T> setDataTask(DataHandleTask<T> dataTask) {
         this.dataTask = dataTask;
         return this;
     }
 
-    public ExportTaskConfig<T> setAfterDataTask(AfterDataTask<T> afterDataTask) {
+    public ExportTaskConfig<T> setAfterDataTask(DataAfterHandleTask<T> afterDataTask) {
         this.afterDataTask = afterDataTask;
         return this;
     }
 
-    public ExportTaskConfig<T> setWriteTask(WriteTask<T> writeTask) {
+    public ExportTaskConfig<T> setWriteTask(DataHandleCompletedTask<T> writeTask) {
         this.writeTask = writeTask;
         return this;
     }
@@ -133,27 +123,23 @@ public class ExportTaskConfig<T> {
         return this;
     }
 
-    public ParamsTask<T> getParamsTask() {
-        return paramsTask;
-    }
-
-    public CountTask<T> getCountTask() {
+    public TotalTask<T> getCountTask() {
         return countTask;
     }
 
-    public BeforeDataTask<T> getBeforeDataTask() {
+    public DataBeforeHandleTask<T> getBeforeDataTask() {
         return beforeDataTask;
     }
 
-    public DataTask<T> getDataTask() {
+    public DataHandleTask<T> getDataTask() {
         return dataTask;
     }
 
-    public AfterDataTask<T> getAfterDataTask() {
+    public DataAfterHandleTask<T> getAfterDataTask() {
         return afterDataTask;
     }
 
-    public WriteTask<T> getWriteTask() {
+    public DataHandleCompletedTask<T> getWriteTask() {
         return writeTask;
     }
 

@@ -14,6 +14,7 @@ public class TestService {
     }
 
     public List<TestEntity> findList(int pageNo, int pageSize, int count) {
+        System.out.println(String.format("pageNo=%d,pageSize=%d,count=%d", pageNo, pageSize, count));
         List<TestEntity> list = new ArrayList<>();
         int start = (pageNo - 1) * pageSize + 1, end = (count > pageSize * pageNo ? pageSize * pageNo : count);
         TestEntity test;

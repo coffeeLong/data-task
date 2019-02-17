@@ -2,8 +2,8 @@ package com.longlong.excel.exporter;
 
 import com.longlong.excel.field.ExcelField;
 import com.longlong.excel.field.ExcelFieldEx;
+import com.longlong.excel.util.Reflections;
 import com.longlong.exporter.exception.ExportException;
-import com.longlong.exporter.utils.Reflections;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;

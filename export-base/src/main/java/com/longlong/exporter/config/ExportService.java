@@ -1,12 +1,19 @@
 package com.longlong.exporter.config;
 
+import com.longlong.exporter.exception.ExportException;
+
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- *  导出任务获取数据配置
+ * 导出任务获取数据配置
+ *
  * @author liaolonglong
  */
-public class ExportService {
+public abstract class ExportService {
 
     /**
      * 获取数据的对象
@@ -26,17 +33,25 @@ public class ExportService {
     /**
      * 获取数据的方法的参数列表，如果全部是是基本数据类型，务必使用 {@link}setParamsTask重新指定参数
      */
-    private Object[] params;
+    protected Object[] params;
+
+    private final ConcurrentLinkedQueue<Object[]> paramsQueue = new ConcurrentLinkedQueue<>();
+
 
     public ExportService(Object executeObj, String executeMethodName, Object... params) {
         this.executeObj = executeObj;
         this.executeMethodName = executeMethodName;
         this.params = params;
-
-        init();
     }
 
-    private void init() {
+
+    public abstract void setCount(Object[] params, int count);
+
+    public abstract void setPageNo(Object[] params, int pageNo);
+
+    public abstract void setPageSize(Object[] params, int pageSize);
+
+    public void init(int threads) {
         // 根据方法名找到方法
         for (Method method : executeObj.getClass().getDeclaredMethods()) {
             if (method.getName().equals(executeMethodName)) {
@@ -66,37 +81,42 @@ public class ExportService {
                 }
             }
         }
-    }
 
-    public Object getExecuteObj() {
-        return executeObj;
-    }
+        //校验参数
+        if (Objects.isNull(executeObj) || Objects.isNull(executeMethod)) {
+            throw new ExportException("获取数据对象不可为空");
+        }
 
-    public void setExecuteObj(Object executeObj) {
-        this.executeObj = executeObj;
-    }
-
-    public Method getExecuteMethod() {
-        return executeMethod;
-    }
-
-    public void setExecuteMethod(Method executeMethod) {
-        this.executeMethod = executeMethod;
+        //复制参数副本
+        for (int i = 0; i < threads; i++) {
+            paramsQueue.add(Arrays.copyOf(params, params.length));
+        }
     }
 
     public Object[] getParams() {
         return params;
     }
 
-    public void setParams(Object[] params) {
-        this.params = params;
+    public void setPageNo(int pageNo) {
+        setPageNo(params, pageNo);
     }
 
-    public String getExecuteMethodName() {
-        return executeMethodName;
+    public void setPageSize(int pageSize) {
+        setPageSize(params, pageSize);
     }
 
-    public void setExecuteMethodName(String executeMethodName) {
-        this.executeMethodName = executeMethodName;
+    public void setCount(int count) {
+        setCount(params, count);
     }
+
+    public Object invoke(int pageNo) throws InvocationTargetException, IllegalAccessException {
+        Object[] params = paramsQueue.poll();
+        try {
+            setPageNo(params, pageNo);
+            return executeMethod.invoke(executeObj, params);
+        } finally {
+            paramsQueue.add(params);
+        }
+    }
+
 }

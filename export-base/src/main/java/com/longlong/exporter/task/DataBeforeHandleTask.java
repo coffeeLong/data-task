@@ -1,9 +1,10 @@
 package com.longlong.exporter.task;
 
 /**
- * 导出写入任务
+ * 数据处理之前执行的任务
  * @author liaolonglong
+ * @param <T>
  */
-public interface WriteTask<T> {
+public interface DataBeforeHandleTask<T> {
     void run(T export);
 }

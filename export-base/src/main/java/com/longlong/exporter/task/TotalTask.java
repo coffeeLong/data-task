@@ -6,6 +6,6 @@ package com.longlong.exporter.task;
  *
  * @author liaolonglong
  */
-public interface CountTask<T> {
+public interface TotalTask<T> {
 	int run(Object[] params);
 }

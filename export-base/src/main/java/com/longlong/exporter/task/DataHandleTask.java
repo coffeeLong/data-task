@@ -4,7 +4,7 @@ package com.longlong.exporter.task;
  * 添加每批数据到数据处理对象
  * @author liaolonglong
  */
-public interface DataTask<T> {
+public interface DataHandleTask<T> {
 	/**
 	 * 
 	 * @param export

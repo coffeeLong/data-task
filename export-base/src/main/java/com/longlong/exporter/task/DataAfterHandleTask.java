@@ -5,7 +5,7 @@ package com.longlong.exporter.task;
  * @author liaolonglong
  * @param <T>
  */
-public interface AfterDataTask<T> {
+public interface DataAfterHandleTask<T> {
 	/**
 	 * 
 	 * @param export
