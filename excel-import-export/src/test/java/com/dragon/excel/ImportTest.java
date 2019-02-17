@@ -2,7 +2,7 @@ package com.dragon.excel;
 
 import com.dragon.excel.entity.TestEntity;
 import com.longlong.excel.ImportExcelBuilder;
-import com.longlong.exporter.exception.ImportException;
+import com.longlong.excel.exceptions.ImportException;
 import org.junit.Test;
 
 import java.io.File;

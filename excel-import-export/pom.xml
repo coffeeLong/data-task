@@ -19,13 +19,13 @@
     <dependencies>
         <dependency>
             <groupId>com.longlong</groupId>
-            <artifactId>export-base</artifactId>
+            <artifactId>data-task-base</artifactId>
             <version>1.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.longlong</groupId>
-            <artifactId>export-task-jdk</artifactId>
+            <artifactId>data-task-jdk</artifactId>
             <version>1.0.0</version>
         </dependency>
 

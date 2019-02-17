@@ -1,8 +1,8 @@
 package com.longlong.excel;
 
+import com.longlong.excel.exceptions.ImportException;
 import com.longlong.excel.importer.ImportExcel;
 import com.longlong.excel.importer.ImportExcelEx;
-import com.longlong.exporter.exception.ImportException;
 
 import java.io.File;
 import java.io.FileInputStream;

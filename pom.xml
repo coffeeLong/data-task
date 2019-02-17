@@ -6,9 +6,9 @@
 	<packaging>pom</packaging>
 	<version>1.0.0</version>
 	<modules>
-		<module>export-base</module>
+		<module>data-task-base</module>
 		<module>excel-import-export</module>
-		<module>export-task-jdk</module>
+		<module>data-task-jdk</module>
 	</modules>
 
 	<description>报表导出功能构设计，支持大数据导出</description>

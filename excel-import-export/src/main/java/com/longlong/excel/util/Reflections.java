@@ -152,7 +152,7 @@ public class Reflections {
     /**
      * 循环向上转型, 获取对象的DeclaredMethod,并强制设置为可访问. 如向上转型到Object仍无法找到, 返回null. 匹配函数名+参数类型。
      * <p>
-     * 用于方法需要被多次调用的情况. 先使用本函数先取得Method,然后调用Method.invoke(Object obj, Object... args)
+     * 用于方法需要被多次调用的情况. 先使用本函数先取得Method,然后调用Method.getData(Object obj, Object... args)
      */
     public static Method getAccessibleMethod(final Object obj, final String methodName, final Class<?>... parameterTypes) {
         Validate.notNull(obj, "object can't be null");
@@ -174,7 +174,7 @@ public class Reflections {
     /**
      * 循环向上转型, 获取对象的DeclaredMethod,并强制设置为可访问. 如向上转型到Object仍无法找到, 返回null. 只匹配函数名。
      * <p>
-     * 用于方法需要被多次调用的情况. 先使用本函数先取得Method,然后调用Method.invoke(Object obj, Object... args)
+     * 用于方法需要被多次调用的情况. 先使用本函数先取得Method,然后调用Method.getData(Object obj, Object... args)
      */
     public static Method getAccessibleMethodByName(final Object obj, final String methodName) {
         Validate.notNull(obj, "object can't be null");

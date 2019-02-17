@@ -3,7 +3,7 @@ package com.longlong.excel.exporter;
 import com.longlong.excel.field.ExcelField;
 import com.longlong.excel.field.ExcelFieldEx;
 import com.longlong.excel.util.Reflections;
-import com.longlong.exporter.exception.ExportException;
+import com.longlong.base.DataTaskException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -138,22 +138,22 @@ public abstract class AbstractExportExcel<THIS extends AbstractExportExcel<THIS,
     public AbstractExportExcel() {
     }
 
-    public AbstractExportExcel(File srcFile, int start) throws ExportException {
+    public AbstractExportExcel(File srcFile, int start) throws DataTaskException {
         initUseModel(srcFile);
         rownum = start;
     }
 
-    public AbstractExportExcel(File srcFile, Map<String, Integer> useModelDataStart) throws ExportException {
+    public AbstractExportExcel(File srcFile, Map<String, Integer> useModelDataStart) throws DataTaskException {
         initUseModel(srcFile);
         this.useModelDataStart = useModelDataStart;
     }
 
-    private void initUseModel(File srcFile) throws ExportException {
+    private void initUseModel(File srcFile) throws DataTaskException {
         try {
             this.wb = new XSSFWorkbook(new FileInputStream(srcFile));
             useTemplate = true;
         } catch (Exception e) {
-            throw new ExportException("初始化工作簿失败", e);
+            throw new DataTaskException("初始化工作簿失败", e);
         }
     }
 
@@ -633,9 +633,9 @@ public abstract class AbstractExportExcel<THIS extends AbstractExportExcel<THIS,
     /**
      * 输出到客户端 默认文件名为 工作簿名yyyyMMddHHmmss.xlsx
      *
-     * @throws ExportException
+     * @throws DataTaskException
      */
-    public THIS write(HttpServletResponse response) throws IOException, ExportException {
+    public THIS write(HttpServletResponse response) throws IOException, DataTaskException {
         return write(response, getFileName());
     }
 
@@ -643,11 +643,11 @@ public abstract class AbstractExportExcel<THIS extends AbstractExportExcel<THIS,
      * 输出到客户端
      *
      * @param fileName 输出文件名
-     * @throws ExportException
+     * @throws DataTaskException
      */
-    public THIS write(HttpServletResponse response, String fileName) throws IOException, ExportException {
+    public THIS write(HttpServletResponse response, String fileName) throws IOException, DataTaskException {
         if (null == response)
-            throw new ExportException("导出没有设置response");
+            throw new DataTaskException("导出没有设置response");
         String url = URLEncoder.encode(fileName, "UTF-8");
         url = url.replace("%26", "&");
         response.reset();

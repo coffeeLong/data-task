@@ -2,7 +2,7 @@ package com.longlong.excel.exporter;
 
 import com.longlong.excel.field.ExcelField;
 import com.longlong.excel.util.Reflections;
-import com.longlong.exporter.exception.ExportException;
+import com.longlong.base.DataTaskException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.*;
@@ -27,11 +27,11 @@ public class ExportExcel extends AbstractExportExcel<ExportExcel, ExcelField> {
 	 */
 	protected List<Object[]> annotationList;
 	
-	public ExportExcel(File srcFile, int start) throws ExportException {
+	public ExportExcel(File srcFile, int start) throws DataTaskException {
 		super(srcFile, start);
 	}
 
-	public ExportExcel(File srcFile, Map<String, Integer> useModelDataStart) throws ExportException {
+	public ExportExcel(File srcFile, Map<String, Integer> useModelDataStart) throws DataTaskException {
 		super(srcFile, useModelDataStart);
 	}
 
