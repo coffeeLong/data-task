@@ -7,7 +7,6 @@ import com.dragon.excel.service.TestService;
 import com.longlong.base.*;
 import com.longlong.excel.ExportExcelBuilder;
 import com.longlong.excel.exporter.AbstractExportExcel;
-import com.longlong.exporter.exception.ExportException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -208,7 +207,7 @@ public class ExportTest {
      */
     @SuppressWarnings("unchecked")
     @Test
-    public void exportMapAnno2() throws ExportException {
+    public void exportMapAnno2() throws DataTaskException {
 
         DataTaskConfig<AbstractExportExcel> config = DataTaskBuilder.buildTaskConfig();
 
@@ -266,9 +265,9 @@ public class ExportTest {
      * @throws DataTaskException
      */
     @Test
-    public void exportBigData() throws ExportException {
+    public void exportBigData() throws DataTaskException {
         // 设置默认获取总记录数任务
-        int count = 50000;
+        int count = 20000000;
         DataTaskConfig<AbstractExportExcel> config = DataTaskBuilder.buildTaskConfig();
 
         config.setLogErrorMessage("测试导出报表导出异常")
@@ -277,7 +276,8 @@ public class ExportTest {
                     run.addCell(++rowNumber, 2, new String[]{"生成人", "超级管理员"}, 2);
                     run.addCell(++rowNumber, 2, new String[]{"生成日期：", new SimpleDateFormat("yyyy-MM-dd").format(new Date())}, 2);
                 })
-                .setPageSize(50)
+                .setPageSize(500)
+                .setTaskSize(32)
                 .setCount(count);
 
         export(config,

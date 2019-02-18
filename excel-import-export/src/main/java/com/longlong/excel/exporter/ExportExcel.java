@@ -217,7 +217,7 @@ public class ExportExcel extends AbstractExportExcel<ExportExcel, ExcelField> {
 
 				}
 			}
-			sheet.autoSizeColumn(i);
+//			sheet.autoSizeColumn(i);
 		}
 	}
 

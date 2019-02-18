@@ -90,11 +90,20 @@ public class DataTaskManager<T> {
         if (Objects.isNull(defaultConfig.getStopDataTask())) {
             defaultConfig.setStopDataTask(false);
         }
-
     }
 
     /**
-     * 执行导出任务，主要工作是设置参数、参数校验和控制整个流程，核心导出处理流程由doExport方法实现
+     * 执行任务    使用默认配置
+     * @param dataHandler
+     * @param dataService
+     * @throws DataTaskException
+     */
+    public void run(T dataHandler, DataService dataService) throws DataTaskException {
+        run(dataHandler, dataService, defaultConfig);
+    }
+
+    /**
+     * 执行任务，主要工作是设置参数、参数校验和控制整个流程，核心导出处理流程由doExport方法实现
      *
      * @param dataHandler 导出处理对象
      * @param dataService
@@ -174,24 +183,27 @@ public class DataTaskManager<T> {
      * @param dataService
      * @param dataTaskConfig
      */
-    private void copyDefaultConfigAndRequireCheck(T dataHandler, DataService dataService, DataTaskConfig dataTaskConfig) {
+    private void copyDefaultConfigAndRequireCheck(T dataHandler, DataService dataService, DataTaskConfig<T> dataTaskConfig) {
 
         if (Objects.isNull(dataHandler) || Objects.isNull(dataService) || Objects.isNull(dataTaskConfig)) {
             throw new DataTaskException("传入参数dataHandler,dataService,dataTaskConfig不可为空");
         }
 
-        Field[] fields = DataTaskConfig.class.getDeclaredFields();
+        //复制默认属性
+        if (dataTaskConfig != defaultConfig) {
+            Field[] fields = DataTaskConfig.class.getDeclaredFields();
 
-        for (Field field : fields) {
-            try {
+            for (Field field : fields) {
+                try {
 
-                field.setAccessible(true);
+                    field.setAccessible(true);
 
-                if (Objects.isNull(field.get(dataTaskConfig))) {
-                    field.set(dataTaskConfig, field.get(defaultConfig));
+                    if (Objects.isNull(field.get(dataTaskConfig))) {
+                        field.set(dataTaskConfig, field.get(defaultConfig));
+                    }
+                } catch (Exception e) {
+                    logger.error("复制默认属性异常field={}", field, e);
                 }
-            } catch (Exception e) {
-                logger.error("复制默认属性异常field={}", field, e);
             }
         }
 
@@ -287,6 +299,15 @@ public class DataTaskManager<T> {
     public void shutdown() {
         dataServicePool.shutdown();
         asyncExecutorService.shutdown();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                dataServicePool.shutdown();
+                asyncExecutorService.shutdown();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }));
     }
 
     /**

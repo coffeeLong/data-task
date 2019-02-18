@@ -14,19 +14,14 @@
     <description>Excel导入导出.支持注解和属性导入导出，支持大数据导出，实测13分钟导出220万数据</description>
 
     <properties>
-        <poi.version>3.9</poi.version>
+        <poi.version>3.17</poi.version>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>com.longlong</groupId>
-            <artifactId>data-task-base</artifactId>
-            <version>1.0.0</version>
-        </dependency>
 
         <dependency>
             <groupId>com.longlong</groupId>
             <artifactId>data-task-jdk</artifactId>
-            <version>1.0.0</version>
+            <version>${project.version}</version>
         </dependency>
 
 

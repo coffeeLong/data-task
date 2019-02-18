@@ -248,13 +248,15 @@ public abstract class AbstractExportExcel<THIS extends AbstractExportExcel<THIS,
                         rows++;
                 }
                 int merges = headerList.size() / (globalField.cols() * 2) - 1;
-                if (merges < 0)
+                if (merges < 0) {
                     merges = 0;
+                }
                 for (int i = 0; i < rows; i++) {
                     Row conRow = sheet.createRow(rownum++);
                     conRow.setRowStyle(styles.get("data"));
-                    if (globalField != null && globalField.isFreeze())
+                    if (globalField != null && globalField.isFreeze()) {
                         sheet.createFreezePane(freezeCount, rownum);
+                    }
                     conRow.setHeightInPoints(16);
                     int cellIndex = 0, annoIndex = 0;
                     for (int j = 0; j < globalField.cols(); j++) {
@@ -311,24 +313,24 @@ public abstract class AbstractExportExcel<THIS extends AbstractExportExcel<THIS,
         Map<String, CellStyle> styles = new HashMap<String, CellStyle>();
 
         CellStyle style = wb.createCellStyle();
-        style.setAlignment(CellStyle.ALIGN_CENTER);
-        style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
         Font titleFont = wb.createFont();
         titleFont.setFontName("Arial");
         titleFont.setFontHeightInPoints((short) 16);
-        titleFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        titleFont.setBold(true);
         style.setFont(titleFont);
         styles.put("title", style);
 
         style = wb.createCellStyle();
-        style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
-        style.setBorderRight(CellStyle.BORDER_THIN);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setBorderRight(BorderStyle.THIN);
         style.setRightBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        style.setBorderLeft(CellStyle.BORDER_THIN);
+        style.setBorderLeft(BorderStyle.THIN);
         style.setLeftBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        style.setBorderTop(CellStyle.BORDER_THIN);
+        style.setBorderTop(BorderStyle.THIN);
         style.setTopBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        style.setBorderBottom(CellStyle.BORDER_THIN);
+        style.setBorderBottom(BorderStyle.THIN);
         style.setBottomBorderColor(IndexedColors.GREY_50_PERCENT.getIndex());
         Font dataFont = wb.createFont();
         dataFont.setFontName("Arial");
@@ -338,29 +340,29 @@ public abstract class AbstractExportExcel<THIS extends AbstractExportExcel<THIS,
 
         style = wb.createCellStyle();
         style.cloneStyleFrom(styles.get("data"));
-        style.setAlignment(CellStyle.ALIGN_LEFT);
+        style.setAlignment(HorizontalAlignment.CENTER);
         styles.put("data1", style);
 
         style = wb.createCellStyle();
         style.cloneStyleFrom(styles.get("data"));
-        style.setAlignment(CellStyle.ALIGN_CENTER);
+        style.setAlignment(HorizontalAlignment.CENTER);
         styles.put("data2", style);
 
         style = wb.createCellStyle();
         style.cloneStyleFrom(styles.get("data"));
-        style.setAlignment(CellStyle.ALIGN_RIGHT);
+        style.setAlignment(HorizontalAlignment.CENTER);
         styles.put("data3", style);
 
         style = wb.createCellStyle();
         style.cloneStyleFrom(styles.get("data"));
         // style.setWrapText(true);
-        style.setAlignment(CellStyle.ALIGN_CENTER);
+        style.setAlignment(HorizontalAlignment.CENTER);
         style.setFillForegroundColor(IndexedColors.WHITE.getIndex());
-        style.setFillPattern(CellStyle.SOLID_FOREGROUND);
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         Font headerFont = wb.createFont();
         headerFont.setFontName("Arial");
         headerFont.setFontHeightInPoints((short) 10);
-        headerFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        headerFont.setBold(true);
         headerFont.setColor(IndexedColors.BLACK.getIndex());
         style.setFont(headerFont);
         styles.put("header", style);
@@ -368,13 +370,13 @@ public abstract class AbstractExportExcel<THIS extends AbstractExportExcel<THIS,
         style = wb.createCellStyle();
         style.cloneStyleFrom(styles.get("data"));
         // style.setWrapText(true);
-        style.setAlignment(CellStyle.ALIGN_CENTER);
+        style.setAlignment(HorizontalAlignment.CENTER);
         style.setFillForegroundColor(IndexedColors.WHITE.getIndex());
-        style.setFillPattern(CellStyle.SOLID_FOREGROUND);
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         Font highLightheaderFont = wb.createFont();
         highLightheaderFont.setFontName("Arial");
         highLightheaderFont.setFontHeightInPoints((short) 10);
-        highLightheaderFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        highLightheaderFont.setBold(true);
         highLightheaderFont.setColor(IndexedColors.RED.getIndex());
         style.setFont(highLightheaderFont);
         styles.put("highLightHeader", style);
@@ -508,7 +510,7 @@ public abstract class AbstractExportExcel<THIS extends AbstractExportExcel<THIS,
             colStyle = wb.createCellStyle();
             colStyle.cloneStyleFrom(styles.get("data" + (align >= 1 && align <= 3 ? align : "")));
             colStyle.setDataFormat(wb.createDataFormat().getFormat(cellFormatString));
-            styles.put("data_column_" + align, colStyle);
+            styles.put("data_column_" + column, colStyle);
         }
         cell.setCellStyle(colStyle);
 
@@ -579,8 +581,9 @@ public abstract class AbstractExportExcel<THIS extends AbstractExportExcel<THIS,
                 if (null == replaceDataFields && null == replaceDataField.get()) {
                     // initAnnotation(list.get(0).getClass(), 1);
                 }
-                if (useModelDataStart != null)
+                if (useModelDataStart != null) {
                     rownum = useModelDataStart.get(sheetName);
+                }
             }
         } else {
             if (!existsSheet.contains(sheetName)) {
@@ -624,8 +627,9 @@ public abstract class AbstractExportExcel<THIS extends AbstractExportExcel<THIS,
      * @param os 输出数据流
      */
     public THIS write(OutputStream os) throws IOException {
-        if (null == sheet)
+        if (null == sheet) {
             createSheet("Export", null);
+        }
         wb.write(os);
         return getThis();
     }
@@ -681,8 +685,9 @@ public abstract class AbstractExportExcel<THIS extends AbstractExportExcel<THIS,
     }
 
     public String getFileName() {
-        if (StringUtils.isNotBlank(fileName))
+        if (StringUtils.isNotBlank(fileName)) {
             return fileName;
+        }
         return fileName = (title + DateFormatUtils.format(new Date(), "yyyyMMddHHmmss") + ".xlsx");
     }
 

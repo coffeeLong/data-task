@@ -63,7 +63,7 @@ public class DataTaskConfig<T> {
     private String logErrorMessage;
 
 
-    DataTaskConfig<T> setTaskSize(Integer taskSize) {
+    public DataTaskConfig<T> setTaskSize(Integer taskSize) {
         this.taskSize = taskSize;
         return this;
     }
