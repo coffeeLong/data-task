@@ -66,4 +66,14 @@ public abstract class DataTaskBuilder {
         dataTaskManager.run(dataHandler, dataService, config);
     }
 
+    /**
+     * 销毁数据任务管理对象
+     *
+     * @param dataTaskManager 数据任务管理对象
+     * @param <T>             数据任务管理对象
+     */
+    public static <T> void shutdown(DataTaskManager<T> dataTaskManager) {
+        dataTaskManager.shutdown();
+    }
+
 }

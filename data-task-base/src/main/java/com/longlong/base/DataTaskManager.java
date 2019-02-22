@@ -43,12 +43,12 @@ public class DataTaskManager<T> {
     /**
      * 缓存一个任务读取的所有页数数据
      */
-    protected final ConcurrentMap<Integer, Object> CACHE = new ConcurrentSkipListMap<>(Integer::compareTo);
+    private final ConcurrentMap<Integer, Object> CACHE = new ConcurrentSkipListMap<>(Integer::compareTo);
 
     /**
      * 临时缓存一个任务加载的排序后数据
      */
-    protected final List CACHE_SORTED_VALUES = new ArrayList(DEFAULT_TASK_SIZE);
+    private final List<Object> CACHE_SORTED_VALUES = new ArrayList<>(DEFAULT_TASK_SIZE);
 
     /**
      * 异步调用线程池最大并发数
@@ -71,7 +71,7 @@ public class DataTaskManager<T> {
     private final DataServicePool<T> dataServicePool;
 
 
-    public DataTaskManager(DataTaskConfig<T> defaultConfig, DataServicePool<T> dataServicePool) {
+    DataTaskManager(DataTaskConfig<T> defaultConfig, DataServicePool<T> dataServicePool) {
         if (null == defaultConfig || null == dataServicePool) {
             throw new IllegalArgumentException("defaultConfig和dataServicePool参数不能为null");
         }
@@ -97,27 +97,27 @@ public class DataTaskManager<T> {
     /**
      * 执行任务    使用默认配置
      *
-     * @param dataHandler
-     * @param dataService
-     * @throws DataTaskException
+     * @param dataHandler 数据任务处理对象
+     * @param dataService 数据服务接口
+     * @throws DataTaskException 执行异常统一抛DataTaskException
      */
-    public void run(T dataHandler, DataService dataService) throws DataTaskException {
+    void run(T dataHandler, DataService dataService) throws DataTaskException {
         run(dataHandler, dataService, defaultConfig);
     }
 
     /**
      * 执行任务，主要工作是设置参数、参数校验和控制整个流程，核心导出处理流程由doExport方法实现
      *
-     * @param dataHandler 导出处理对象
-     * @param dataService
-     * @param config
-     * @throws DataTaskException
+     * @param dataHandler 数据任务处理对象
+     * @param dataService 数据服务接口
+     * @param config      数据任务属性配
+     * @throws DataTaskException 执行异常统一抛DataTaskException
      */
-    public void run(T dataHandler, DataService dataService, DataTaskConfig<T> config) throws DataTaskException {
+    void run(T dataHandler, DataService dataService, DataTaskConfig<T> config) throws DataTaskException {
 
         copyDefaultConfigAndRequireCheck(dataHandler, dataService, config);
 
-        if (Objects.nonNull(config.getStopDataTask()) && false == config.getStopDataTask()) {
+        if (Objects.nonNull(config.getStopDataTask()) && !config.getStopDataTask()) {
 
             Object[] params = dataService.initParams();
 
@@ -182,9 +182,6 @@ public class DataTaskManager<T> {
     /**
      * 1.从默认配置获取配置信息
      * 2.校验必要配置属性
-     *
-     * @param dataService
-     * @param dataTaskConfig
      */
     private void copyDefaultConfigAndRequireCheck(T dataHandler, DataService dataService, DataTaskConfig<T> dataTaskConfig) {
 
@@ -229,12 +226,6 @@ public class DataTaskManager<T> {
      * 2.把缓存排序后的一批数据转移到CACHE_SORTED_VALUES
      * 3.循环遍历异步加载一批批数据，异步加载数据时对当前主线程解锁
      * 4.同步调用数据处理任务，处理完后对主线程加锁
-     *
-     * @param dataHandler
-     * @param loadDataService
-     * @param config
-     * @param taskTotal
-     * @throws Exception
      */
     private synchronized void doRun(T dataHandler, LoadDataService loadDataService, DataTaskConfig<T> config, int taskTotal, Set<Throwable> exceptions) throws Exception {
         Thread masterThread = Thread.currentThread();
@@ -288,19 +279,16 @@ public class DataTaskManager<T> {
 
     /**
      * 执行数据导出任务
-     *
-     * @param export
-     * @param config
      */
-    private void handleDataTask(T export, DataTaskConfig config) {
-        CACHE_SORTED_VALUES.forEach(list -> config.getDataHandleTask().run(export, list));
+    private void handleDataTask(T dataHandler, DataTaskConfig<T> config) {
+        CACHE_SORTED_VALUES.forEach(list -> config.getDataHandleTask().run(dataHandler, list));
         CACHE_SORTED_VALUES.clear();
     }
 
     /**
      * 销毁对象时调用
      */
-    public void shutdown() {
+    void shutdown() {
         dataServicePool.shutdown();
         asyncExecutorService.shutdown();
 
@@ -317,7 +305,7 @@ public class DataTaskManager<T> {
     /**
      * 调用导出任务获取数据接口加载数据，并把数据加入缓存
      */
-    public class LoadDataService {
+    class LoadDataService {
         private DataService dataService;
         private ArrayBlockingQueue<Object[]> paramsQueue;
         private Set<Throwable> exceptions;
@@ -336,10 +324,8 @@ public class DataTaskManager<T> {
 
         /**
          * 加载数据到缓存，缓存把数据排序
-         *
-         * @param pageNo
          */
-        public void loadData(int pageNo) {
+        void loadData(int pageNo) {
             Object[] params = paramsQueue.poll();
             try {
                 CACHE.put(pageNo, dataService.getData(params, pageNo));
