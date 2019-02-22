@@ -6,14 +6,13 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * threadPool线程池管理数据服务任务
  *
  * @author liaolonglong
  */
-public class ThreadPoolDataServicePool<T> extends DataServicePool<T> {
+public class ThreadPoolDataServicePool<T> extends AbstractDataServicePool<T> {
 
     private final ThreadPoolExecutor threadPoolExecutor;
 
@@ -32,8 +31,8 @@ public class ThreadPoolDataServicePool<T> extends DataServicePool<T> {
     public void invoke(int start, int end, DataTaskManager.LoadDataService loadDataService) throws Exception {
         List<Callable<Void>> tasks = new ArrayList<>();
 
-        for (AtomicInteger i = new AtomicInteger(start - 1); i.incrementAndGet() <= end; ) {
-            tasks.add(new LoadDataCallable(i.get(), loadDataService));
+        for (int i = start; i <= end; i++) {
+            tasks.add(new LoadDataCallable(i, loadDataService));
         }
 
         threadPoolExecutor.invokeAll(tasks);

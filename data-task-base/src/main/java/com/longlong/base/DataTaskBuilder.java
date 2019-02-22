@@ -5,7 +5,7 @@ package com.longlong.base;
  *
  * @author liaolonglong
  */
-public class DataTaskBuilder {
+public abstract class DataTaskBuilder {
 
     /**
      * 构建导出任务配置信息
@@ -15,6 +15,17 @@ public class DataTaskBuilder {
      */
     public static <T> DataTaskConfig<T> buildTaskConfig() {
         return new DataTaskConfig<>();
+    }
+
+    /**
+     * 构建数据任务管理对象
+     *
+     * @param dataServicePool 数据服务管理线程池
+     * @param <T>             数据任务处理对象类型
+     * @return 导出任务
+     */
+    public static <T> DataTaskManager<T> buildTaskManager(DataServicePool<T> dataServicePool) {
+        return buildTaskManager(new DataTaskConfig<>(), dataServicePool);
     }
 
     /**

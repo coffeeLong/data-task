@@ -71,11 +71,13 @@ public class DataTaskManager<T> {
     private final DataServicePool<T> dataServicePool;
 
 
-    DataTaskManager(DataTaskConfig<T> defaultConfig, DataServicePool<T> dataServicePool) {
+    public DataTaskManager(DataTaskConfig<T> defaultConfig, DataServicePool<T> dataServicePool) {
+        if (null == defaultConfig || null == dataServicePool) {
+            throw new IllegalArgumentException("defaultConfig和dataServicePool参数不能为null");
+        }
+
         this.defaultConfig = defaultConfig;
         this.dataServicePool = dataServicePool;
-
-        this.dataServicePool.setDataTaskManager(this);
 
         //加载默认配置属性
         if (Objects.isNull(defaultConfig.getLogErrorMessage())) {
@@ -94,6 +96,7 @@ public class DataTaskManager<T> {
 
     /**
      * 执行任务    使用默认配置
+     *
      * @param dataHandler
      * @param dataService
      * @throws DataTaskException
@@ -257,6 +260,7 @@ public class DataTaskManager<T> {
                 } finally {
                     LockSupport.unpark(masterThread);
                 }
+
             });
 
             handleDataTask(dataHandler, config);

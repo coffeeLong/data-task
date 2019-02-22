@@ -8,7 +8,7 @@ import java.util.concurrent.RecursiveAction;
  *
  * @author liaolonglong
  */
-public class ForkJoinDataServicePool<T> extends DataServicePool<T> {
+public class ForkJoinDataServicePool<T> extends AbstractDataServicePool<T> {
 
     private final ForkJoinPool forkJoinPool;
 

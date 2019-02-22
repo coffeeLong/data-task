@@ -42,6 +42,7 @@ public class ExportTest {
         param.setPageNo(1);
         param.setPageSize(50);
         param.setCount(4300);
+
         /** ＝＝＝＝＝＝＝＝＝＝＝＝设置全局属性或任务 开始＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝ */
         DataServicePool<AbstractExportExcel> dataServicePool = new ThreadPoolDataServicePool<>();
 //        ExportTaskPool<AbstractExportExcel> exportTaskPool = new MasterWorkerExportTaskPool<>();
@@ -267,7 +268,7 @@ public class ExportTest {
     @Test
     public void exportBigData() throws DataTaskException {
         // 设置默认获取总记录数任务
-        int count = 20000000;
+        int count = 2000000;
         DataTaskConfig<AbstractExportExcel> config = DataTaskBuilder.buildTaskConfig();
 
         config.setLogErrorMessage("测试导出报表导出异常")
@@ -285,7 +286,7 @@ public class ExportTest {
                 new DataService() {
                     @Override
                     public Object[] initParams() {
-                        return new Object[]{param.getPageNo(), param.getPageSize(), param.getCount()};
+                        return new Object[3];
                     }
 
                     @Override
